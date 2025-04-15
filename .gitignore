@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Node Modules
+node_modules/
+
+# Build Artifacts
+*.zip
+
+# IDE specific files
+.idea/
