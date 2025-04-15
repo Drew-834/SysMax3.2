@@ -37,7 +37,7 @@ namespace SysMax2._1.Models
         {
             if (_messages.TryGetValue(key, out string message))
             {
-                return message;
+                return message!;
             }
 
             return "I'm here to help you understand your system better. What would you like to know?";

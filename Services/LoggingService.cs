@@ -18,7 +18,22 @@ namespace SysMax2._1.Services
         private readonly List<LogEntry> _logEntries = new List<LogEntry>();
         private readonly string _logFilePath;
         private const int MaxInMemoryLogs = 1000;
-        private bool _logToFile = true;
+        private bool _isLoggingEnabled = true;
+
+        // Public property to control logging enable state
+        public bool IsLoggingEnabled
+        {
+            get => _isLoggingEnabled;
+            set
+            {
+                if (_isLoggingEnabled != value)
+                {
+                    _isLoggingEnabled = value;
+                    // Log the change itself (if logging is still enabled!)
+                    Log(LogLevel.Info, $"Logging has been {(value ? "enabled" : "disabled")}.");
+                }
+            }
+        }
 
         // Event for when a new log entry is added
         public event EventHandler<LogEntry>? LogAdded;
@@ -41,7 +56,11 @@ namespace SysMax2._1.Services
             // Set log file path
             _logFilePath = Path.Combine(appDataPath, "SysMax.log");
 
-            // Log service initialization
+            // Load initial logging state from settings? Or default to true?
+            // Assuming default is true for now.
+            IsLoggingEnabled = true; // Set initial state
+
+            // Log service initialization (only if enabled)
             Log(LogLevel.Info, "Logging service initialized");
         }
 
@@ -68,8 +87,15 @@ namespace SysMax2._1.Services
         /// <param name="source">Log source</param>
         public void Log(LogLevel level, string message, string source = "SysMax")
         {
-            LogEntry entry = new LogEntry(level, message, source);
+            // Check if logging is enabled globally before proceeding
+            if (!IsLoggingEnabled && level != LogLevel.Critical) // Always log Critical? Or respect setting fully?
+            {
+                // Optionally log to Debug console even if file logging is off
+                System.Diagnostics.Debug.WriteLine($"[LOG DISABLED] {level}: {message} ({source})");
+                return; // Skip logging if disabled (except maybe critical)
+            }
 
+            LogEntry entry = new LogEntry(level, message, source);
             Task.Run(() => AddLogEntryAsync(entry));
         }
 
@@ -83,22 +109,21 @@ namespace SysMax2._1.Services
 
             try
             {
-                // Add to in-memory collection
+                // Add to in-memory collection (always? or only if enabled?)
                 _logEntries.Add(entry);
-
-                // Trim collection if it exceeds the maximum size
                 if (_logEntries.Count > MaxInMemoryLogs)
                 {
                     _logEntries.RemoveRange(0, _logEntries.Count - MaxInMemoryLogs);
                 }
 
-                // Write to log file
-                if (_logToFile)
+                // Write to log file ONLY IF ENABLED
+                // This check is redundant now if Log() checks first, but good for safety.
+                if (IsLoggingEnabled)
                 {
                     await WriteToFileAsync(entry);
                 }
 
-                // Raise event
+                // Raise event (always? or only if enabled?)
                 LogAdded?.Invoke(this, entry);
             }
             finally
@@ -174,17 +199,6 @@ namespace SysMax2._1.Services
             {
                 _logEntries.Clear();
             }
-        }
-
-        /// <summary>
-        /// Enables or disables logging to file
-        /// </summary>
-        /// <param name="enabled">Whether logging to file should be enabled</param>
-        public void SetFileLogging(bool enabled)
-        {
-            _logToFile = enabled;
-
-            Log(LogLevel.Info, $"File logging {(enabled ? "enabled" : "disabled")}");
         }
     }
 }

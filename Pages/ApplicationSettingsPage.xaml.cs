@@ -53,84 +53,10 @@ namespace SysMax2._1.Pages
             }
         }
 
-        private void ClearDataButton_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show(
-                "This will reset all settings to default and clear stored application data. Are you sure you want to continue?",
-                "Clear Application Data",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    _settingsService.ResetToDefaults();
-
-                    // Reload settings and apply to UI
-                    _currentSettings = _settingsService.LoadSettings();
-                    ApplySettingsToUI();
-
-                    MessageBox.Show(
-                        "Application data has been cleared and settings reset to default.",
-                        "Data Cleared",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-
-                    if (mainWindow != null)
-                    {
-                        mainWindow.UpdateStatus("Application data cleared and settings reset");
-                        mainWindow.ShowAssistantMessage("I've reset all settings to their default values and cleared the settings file.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                     MessageBox.Show($"Error clearing data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                     if (mainWindow != null)
-                     {
-                         mainWindow.UpdateStatus("Error clearing application data");
-                         mainWindow.ShowAssistantMessage($"I encountered an error trying to clear the application data: {ex.Message}");
-                     }
-                }
-            }
-        }
-
-        private void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Update checking functionality is not implemented yet.", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Information);
-            // Keep assistant message for now
-            if (mainWindow != null)
-            {
-                mainWindow.UpdateStatus("Update check not implemented");
-                mainWindow.ShowAssistantMessage("Checking for updates isn't implemented in this version yet.");
-            }
-        }
-
-        private void AboutButton_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO: Get version dynamically from assembly info
-            string version = "2.1.0"; // Hardcoded for now
-            MessageBox.Show(
-                $"SysMax System Health Monitor\nVersion {version}\n\nA comprehensive system monitoring and optimization tool.\n\n© 2025 SysMax Inc. All rights reserved.",
-                "About SysMax",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
         private void ApplySettingsToUI()
         {
-            // _currentSettings is already loaded
-
-            // Apply settings to UI elements
             try
             {
-                // General
-                StartWithWindowsCheckbox.IsChecked = _currentSettings.StartWithWindows;
-                RunInBackgroundCheckbox.IsChecked = _currentSettings.RunInBackground;
-                DefaultUserModeComboBox.SelectedIndex = _currentSettings.GetUserModeIndex();
-                LanguageComboBox.SelectedIndex = 0; // Hardcoded to English for now
-                ThemeComboBox.SelectedIndex = _currentSettings.GetThemeIndex(); // Needs theme switching logic
-
                 // Notifications
                 EnableNotificationsCheckbox.IsChecked = _currentSettings.EnableNotifications;
                 CriticalIssuesOnlyCheckbox.IsChecked = _currentSettings.CriticalIssuesOnly;
@@ -141,20 +67,17 @@ namespace SysMax2._1.Pages
                 CpuThresholdSlider.Value = _currentSettings.CpuAlertThreshold;
                 MemoryThresholdSlider.Value = _currentSettings.MemoryAlertThreshold;
                 DiskThresholdSlider.Value = _currentSettings.DiskAlertThreshold;
-                // Manually update TextBlocks after setting Slider values
                 CpuThresholdText.Text = $"{_currentSettings.CpuAlertThreshold}%";
                 MemoryThresholdText.Text = $"{_currentSettings.MemoryAlertThreshold}%";
                 DiskThresholdText.Text = $"{_currentSettings.DiskAlertThreshold}%";
 
                 // Advanced
                 EnableLoggingCheckbox.IsChecked = _currentSettings.EnableLogging;
-                AutoUpdateCheckbox.IsChecked = _currentSettings.AutoUpdateCheck; // Placeholder
             }
             catch (Exception ex)
             {
-                // Log error or show message if UI update fails
                 MessageBox.Show($"Error applying settings to UI: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                 if (mainWindow != null) mainWindow.UpdateStatus("Error loading settings UI");
+                if (mainWindow != null) mainWindow.UpdateStatus("Error loading settings UI");
             }
         }
 
@@ -163,35 +86,31 @@ namespace SysMax2._1.Pages
             // Create AppSettings object from UI
             var settingsToSave = new AppSettings
             {
-                // General
-                StartWithWindows = StartWithWindowsCheckbox.IsChecked ?? false,
-                RunInBackground = RunInBackgroundCheckbox.IsChecked ?? false,
-                // DefaultUserMode = ((ComboBoxItem)DefaultUserModeComboBox.SelectedItem).Content.ToString(), // Correct way to get selected string
-                // Language = ((ComboBoxItem)LanguageComboBox.SelectedItem).Content.ToString(), // Correct way
-                // Theme = ((ComboBoxItem)ThemeComboBox.SelectedItem).Content.ToString(), // Correct way
-
                 // Notifications
                 EnableNotifications = EnableNotificationsCheckbox.IsChecked ?? false,
                 CriticalIssuesOnly = CriticalIssuesOnlyCheckbox.IsChecked ?? false,
                 NotificationSound = NotificationSoundCheckbox.IsChecked ?? false,
 
                 // Monitoring
-                // UpdateFrequencySeconds = GetFrequencyFromIndex(UpdateFrequencyComboBox.SelectedIndex),
                 CpuAlertThreshold = (int)CpuThresholdSlider.Value,
                 MemoryAlertThreshold = (int)MemoryThresholdSlider.Value,
                 DiskAlertThreshold = (int)DiskThresholdSlider.Value,
 
                 // Advanced
                 EnableLogging = EnableLoggingCheckbox.IsChecked ?? false,
-                AutoUpdateCheck = AutoUpdateCheckbox.IsChecked ?? false
+                
+                // Keep existing values for removed settings to avoid losing them if user downgrades?
+                // Or just don't save them anymore.
+                Language = _currentSettings.Language, // Keep existing
+                Theme = _currentSettings.Theme, // Keep existing
+                DefaultUserMode = _currentSettings.DefaultUserMode, // Keep existing
+                StartWithWindows = _currentSettings.StartWithWindows, // Keep existing
+                RunInBackground = _currentSettings.RunInBackground, // Keep existing
+                AutoUpdateCheck = _currentSettings.AutoUpdateCheck // Keep existing
             };
             
-            // Use helper methods to set string/int values from ComboBox indices
-            settingsToSave.SetUserModeFromIndex(DefaultUserModeComboBox.SelectedIndex);
-            // settingsToSave.SetLanguageFromIndex(LanguageComboBox.SelectedIndex); // Need mapping if implemented
-            settingsToSave.SetThemeFromIndex(ThemeComboBox.SelectedIndex);
+            // Use helper methods for remaining ComboBoxes
             settingsToSave.SetUpdateFrequencyFromIndex(UpdateFrequencyComboBox.SelectedIndex);
-
 
             // Save using the service
             try
@@ -207,7 +126,8 @@ namespace SysMax2._1.Pages
                     mainWindow.ShowAssistantMessage("Your application settings have been saved.");
                 }
 
-                // TODO: Apply settings that require immediate action (e.g., theme change, update frequency change)
+                // Apply settings that require immediate action
+                ApplyImmediateSettings(settingsToSave);
             }
             catch (Exception ex)
             {
@@ -218,6 +138,22 @@ namespace SysMax2._1.Pages
                     mainWindow.ShowAssistantMessage($"I encountered an error trying to save your settings: {ex.Message}");
                 }
             }
+        }
+        
+        // Helper method to apply settings that need immediate effect
+        private void ApplyImmediateSettings(AppSettings settings)
+        {
+            // Update Logging Service state based on EnableLogging setting
+            LoggingService.Instance.IsLoggingEnabled = settings.EnableLogging;
+            LoggingService.Instance.Log(LogLevel.Info, $"Logging enabled status set to: {settings.EnableLogging}");
+
+            // Update Hardware Monitor thresholds (already handled by SettingsSaved event in service)
+            // Update Hardware Monitor interval (already handled by SettingsSaved event in service)
+            
+            // Update Notification Service state (if one exists)
+            // NotificationService.Instance.IsEnabled = settings.EnableNotifications;
+            // NotificationService.Instance.NotifyOnlyCritical = settings.CriticalIssuesOnly;
+            // NotificationService.Instance.PlaySound = settings.NotificationSound;
         }
     }
 }

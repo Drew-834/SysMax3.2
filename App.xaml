@@ -4,8 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:SysMax"
              xmlns:models="clr-namespace:SysMax2._1.Models"
-             xmlns:converters="clr-namespace:SysMax2._1.Converters"
-             StartupUri="MainWindow.xaml">
+             xmlns:converters="clr-namespace:SysMax2._1.Converters">
     <Application.Resources>
         <!-- Converters -->
         <!-- Reference the built-in BooleanToVisibilityConverter from the System.Windows namespace -->
