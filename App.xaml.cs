@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Windows;
 
@@ -21,11 +22,24 @@ namespace SysMax
             // Optionally check splashResult if you need to know if loading succeeded
             if (splashResult == true) 
             {
-                // Create and show the main window only after the splash screen is closed (using fully qualified name)
-                SysMax2._1.MainWindow mainWindow = new SysMax2._1.MainWindow();
-                // Set the application's MainWindow property
-                this.MainWindow = mainWindow;
-                mainWindow.Show();
+                try
+                {
+                    // Create and show the main window only after the splash screen is closed (using fully qualified name)
+                    SysMax2._1.MainWindow mainWindow = new SysMax2._1.MainWindow();
+                    // Set the application's MainWindow property
+                    this.MainWindow = mainWindow;
+                    mainWindow.Show();
+                }
+                catch (Exception ex)
+                {
+                    // Log or display the exception to understand the failure
+                    MessageBox.Show($"Failed to load the main application window:\n\n{ex.ToString()}", 
+                                    "Application Startup Error", 
+                                    MessageBoxButton.OK, 
+                                    MessageBoxImage.Error);
+                    // Optionally log to a file here as well
+                    this.Shutdown(-1); // Shutdown with an error code
+                }
             }
             else
             {

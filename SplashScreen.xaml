@@ -7,7 +7,21 @@
         mc:Ignorable="d"
         Title="SysMax Loading..." Height="350" Width="600"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent" 
-        ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Opacity="0">
+
+    <Window.Triggers>
+        <!-- Fade-in animation on load -->
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                     From="0" To="1" Duration="0:0:0.5" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
     <Border Background="#FF1E1E1E" CornerRadius="10" BorderBrush="#333333" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
@@ -16,20 +30,18 @@
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
 
-            <!-- Placeholder for Logo -->
-            <Viewbox Grid.Row="0" MaxHeight="150" MaxWidth="150" Margin="20">
-                <!-- TODO: Replace TextBlock below with actual logo -->
-                <!-- <Image Source="/Assets/Logo.png" Stretch="Uniform" /> -->
-                <TextBlock Text="LOGO" Foreground="{StaticResource PrimaryColor}" FontSize="48" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <!-- Logo -->
+            <Viewbox Grid.Row="0" MaxHeight="150" MaxWidth="150" Margin="20,30,20,10"> 
+                <Image Source="/Assets/sysmaxlogo2.png" Stretch="Uniform" />
             </Viewbox>
 
             <!-- Loading Text -->
             <TextBlock x:Name="LoadingText" Grid.Row="1" Text="Initializing..." 
                        Foreground="{StaticResource MutedTextColor}" FontSize="16" 
-                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,20"/>
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,10"/>
             
-            <!-- Optional Progress Bar -->
-            <!-- <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="5" Margin="50,0" VerticalAlignment="Center" Style="{StaticResource ThemedProgressBarStyle}"/> -->
+            <!-- Progress Bar -->
+            <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="5" Margin="50,0,50,15" VerticalAlignment="Center" Style="{StaticResource ThemedProgressBarStyle}"/>
 
         </Grid>
     </Border>
