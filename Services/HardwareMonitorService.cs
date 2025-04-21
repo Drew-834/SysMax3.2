@@ -21,6 +21,7 @@ namespace SysMax2._1.Services
             try
             {
                 // Initialize the computer object
+                /* // Temporarily commented out LHM initialization
                 _computer = new Computer
                 {
                     IsCpuEnabled = true,
@@ -34,9 +35,11 @@ namespace SysMax2._1.Services
                 // Open the computer
                 _computer.Open();
                 _isInitialized = true;
+                */ // End of commented out LHM initialization
 
-                // Log initialization
-                _loggingService.Log(LogLevel.Info, "Hardware Monitor Service initialized successfully");
+                // Log initialization attempt
+                _loggingService.Log(LogLevel.Info, "Hardware Monitor Service initialization bypassed for testing.");
+                _isInitialized = false; // Ensure we know it's not initialized
             }
             catch (Exception ex)
             {
@@ -71,7 +74,7 @@ namespace SysMax2._1.Services
             try
             {
                 // Update all hardware information
-                _computer.Accept(new UpdateVisitor());
+                // _computer.Accept(new UpdateVisitor()); // Temporarily commented out LHM update
             }
             catch (Exception ex)
             {
