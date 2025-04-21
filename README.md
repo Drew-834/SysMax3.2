@@ -32,4 +32,4 @@ Visit the project's landing page [here](https://drew-834.github.io/SysMax3.2/). 
 
 ## License
 
-(Specify your license here - e.g., MIT) 
+(License stuff here) 
